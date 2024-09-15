@@ -1,0 +1,14 @@
+**/node_modules
+client/build
+server/dist
+server/images
+.git
+*.code-workspace
+*.code-workspace.tpl
+**/db.json
+**/*.md
+root
+.eslintignore
+.eslintrc.js
+pyboy
+itch.html

@@ -1,0 +1,4 @@
+pyboy/
+server/db.json
+server/save.json
+server/save.json.backup
