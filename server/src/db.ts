@@ -1,10 +1,8 @@
 import * as fs from 'fs'
-import { InputHistoryItem } from './types'
 import log from './webapp/log'
 
-const dbFilePath = process.env.LOCAL ? './db.json' : '/saves/db.json'
-
-
+const dbFilePath = (process.env.LOCAL || process.env.OS === 'Windows_NT') ? './db.json' : '/saves/db.json'
+ 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let db: any
 
@@ -50,27 +48,5 @@ export function reload () {
 function save () {
   fs.writeFileSync(dbFilePath, JSON.stringify(db, null, 2))
 }
-
-export function setLastPostNumber(num:number) {
-  const obj = get().value as any
-  obj.lastPostNumber = num
-  save()
-}
-
-export function getLastPostNumber() {
-  const obj = get().value as any
-  return obj.lastPostNumber
-}
-
-export function getHistory (): InputHistoryItem[] {
-  return get().getArray('history').value as InputHistoryItem[]
-}
-
-export function addToHistory (item: InputHistoryItem): void {
-  get().getArray('history').value.unshift(item)
-  save()
-}
-
-
 
 reload()

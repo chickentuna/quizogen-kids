@@ -24,7 +24,8 @@ app
 app.on('error', errorLog)
 
 let server
-if (process.env.LOCAL) {
+
+if (process.env.LOCAL || process.env.OS === 'Windows_NT') {
   server = http.createServer(app.callback())
 } else {
   const options = {
