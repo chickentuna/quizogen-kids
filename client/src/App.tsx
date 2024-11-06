@@ -10,6 +10,23 @@ async function wait (millis:number): Promise<void> {
 }
 
 const quiz = [
+  { word: 'petit', img: 'https://www.thelabradorsite.com/wp-content/uploads/2020/01/Small-Labrador-LS-long.jpg' },
+  { word: 'grand', img: 'https://static.wikia.nocookie.net/mrmen/images/f/fa/Mr_tall_8A.png/revision/latest?cb=20181025163319' },
+  { word: 'un enfant', img: 'https://www.educatout.com/images/medium/Trucs-et-conseils-pour-valoriser-l-enfant.jpg' },
+  { word: 'plus', img: 'https://image.spreadshirtmedia.net/image-server/v1/products/T1459A839PA4459PT28D194598562W9990H9990/views/1,width=378,height=378,appearanceId=839,backgroundColor=F2F2F2/mathe-plus-signe-dessin-a-tirets.jpg' },
+  { word: 'toujours', img: 'https://www.shutterstock.com/image-vector/daily-use-icon-flat-monochrome-600nw-2398310033.jpg' },
+  { word: 'beaucoup', img: 'https://cdn.mos.cms.futurecdn.net/2gHPhDWjds5q8nqLM2FG9Y-1200-80.jpg' },
+  { word: 'content', img: 'https://mrmen.com/cdn/shop/t/37/assets/svg--character--mr-happy.svg?v=32825736591941550291695746657' },
+  { word: 'maintenant', img: 'https://www.shutterstock.com/fr/image-photo/hourglass-time-passing-concept-business-deadline-549656056' },
+  { word: 'apporter', img: 'https://www.woopets.fr/assets/img/011/425/1200x675/18-chiens-apportant-fierement-un-gros-baton.jpg' },
+  { word: 'une photo', img: 'https://www.photoweb.fr/espaces/magazine/wp-content/uploads/2017/05/poids-d-une-image.jpg' },
+  { word: 'plusieurs', img: 'https://nosoffres.ccas.fr/wp-content/uploads/sites/2/2023/08/Contrat-scolaire-1.jpg' },
+  { word: 'la peur', img: 'https://www.hoptoys.fr/52260/15033.jpg' },
+  { word: 'un loup', img: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTesKiNuOBeheJkQJ8kHHimltiEFwn-3KYMLaMb4B-3yVizb4ty' },
+  { word: 'un éléphant', img: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRAgjeh_PZSC9gUmlm1dzEkbCsP71owoucsFWhoIYYpp7u1czrj' },
+  { word: 'un chapeau', img: 'https://www.raceuhats.com/6307-medium_default/chapeau-ranch-feutre-de-laine-a-bord-rigide.jpg' },
+  { word: 'trop', img: 'https://pbs.twimg.com/media/EVQgAD_XQAQ6b-d.jpg' },
+  { word: 'une peluche', img: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Zoomteddybear.jpg' },
   { word: 'voici', img: 'https://img.le-dictionnaire.com/voici-indiquer.jpg', herrings: ['voissi', 'voicy', 'voisit', 'voisi'] },
   { word: 'deux', img: 'https://img.freepik.com/photos-premium/numero-deux_2227-160.jpg', herrings: ['deu', 'deuz', 'deuex', 'de'] },
   { word: 'élève', img: 'https://www.education.gouv.fr/sites/default/files/styles/banner_1340x730/public/2020-02/evaluations-cp-29444.jpg?itok=iqI8ofTG', herrings: ['éléve', 'élèvee', 'éleve', 'élèv'] },
@@ -52,36 +69,60 @@ const shuffle = (array: any[]) => {
   return array
 }
 
+shuffle(quiz)
+
 function App () {
   const [quizIdx, setQuizIdx] = useState(0)
   const [question, setQuestion] = useState(quiz[0])
   const [state, setState] = useState('guessing')
-  const [options, setOptions] = useState([])
+
+  const [inputValue, setInputValue] = useState('')
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value)
+  }
 
   useEffect(() => {
     const q = quiz[quizIdx]
     setQuestion(q)
     setState('guessing')
-    const opts = [
-      { label: q.word, correct: true },
-      ...q.herrings.map(word => ({ label: word, correct: false }))
-    ]
-    shuffle(opts)
-    setOptions(opts)
     speak(q.word)
+    setInputValue('')
   }, [quizIdx])
 
   function handleClickImg () {
     speak(question.word)
   }
 
-  function handleOptionClick (idx: number) {
-    if (state === 'guessing') {
-      setState('result')
+  const correctWord = question.word
+
+  function handleSubmit (e) {
+    const iv = inputValue?.toLowerCase() ?? ''
+    const cw = correctWord.toLowerCase()
+    if (cw !== iv) {
+      if (cw.startsWith(iv)) {
+        const n = cw.length - iv.length
+        let newIv = iv
+        for (let i = 0; i < n; ++i) {
+          newIv += '?'
+        }
+        setInputValue(newIv)
+      }
     } else {
-      setState('guessing')
-      setQuizIdx((quizIdx + 1) % quiz.length)
+      setQuizIdx(quizIdx + 1)
     }
+
+    e.preventDefault()
+  }
+
+  const getStyledText = () => {
+    return inputValue
+      .split('')
+      .map((char, index) => {
+        const isCorrect = char.toLowerCase() === (correctWord[index])?.toLowerCase()
+        return `<span style="color: ${isCorrect ? 'green' : 'red'}">${char || ''}</span>`
+      })
+      .join('')
   }
 
   return (
@@ -91,17 +132,37 @@ function App () {
         <img className='img' src={question.img} />
       </div>
       <div className='words-container'>
-        {options.map((option, idx) => (
-          <div key={idx} className='option-container'>
-            <button
-              onClick={() => handleOptionClick(idx)}
-              className={`button-33 ${state === 'result' && !option.correct && 'wrong'}`}
-              role='button'
-            >
-              {option.label}
-            </button>
-          </div>
-        ))}
+        <form className='option-container' onSubmit={handleSubmit}>
+          <div
+            className='button-33'
+            style={{
+              position: 'relative',
+              minWidth: 200,
+              pointerEvents: 'none',
+              zIndex: 0,
+              textWrap: 'nowrap',
+              minHeight: 62,
+              boxSizing: 'border-box'
+            }}
+            dangerouslySetInnerHTML={{ __html: getStyledText() }}
+          />
+          <input
+            className='button-33'
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 2,
+              background: 'transparent',
+              color: 'transparent',
+              caretColor: 'green'
+            }}
+            onInput={handleInputChange}
+            value={inputValue}
+          />
+        </form>
       </div>
 
       <div className='cat'>
